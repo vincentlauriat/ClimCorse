@@ -109,6 +109,36 @@ comme un masque de bits couvrant les **deux** axes. Régler un axe suppose donc
 de connaître l'état de l'autre — le client le prend dans le dernier état connu
 de l'appareil plutôt que d'émettre une lecture supplémentaire.
 
+## Distribution et mises à jour
+
+L'application est distribuée sous forme de DMG signé Developer ID et notarisé,
+et se met à jour toute seule via Sparkle 2.
+
+**Pas de bac à sable.** Sparkle installe ses mises à jour au travers de services
+XPC. Sous bac à sable, cela impose d'embarquer `Downloader.xpc` /
+`Installer.xpc` et de déclarer les exceptions
+`temporary-exception.mach-lookup.global-name` ; faute de quoi la mise à jour se
+télécharge puis échoue silencieusement à s'installer. La distribution se faisant
+en Developer ID et non par l'App Store, le bac à sable n'apporte rien ici. Ce
+choix rejoint StarlinkInfos et ZendureMonitor.
+
+**Clé de signature.** Les mises à jour sont signées en EdDSA avec une clé privée
+conservée dans le trousseau de session sous le compte `ClimCorse` ; sa moitié
+publique est embarquée dans l'app via `SUPublicEDKey`. Le nom du compte n'est
+déductible de rien dans le dépôt : il est consigné dans `MEMORY.md`, car
+`release.sh` en dépend. Régénérer la clé ferait rejeter toutes les mises à jour
+futures par chaque copie déjà installée.
+
+**Comparaison de versions.** Sparkle compare `<sparkle:version>` au
+`CFBundleVersion` de l'app installée — un entier croissant — et non à la version
+marketing. Y écrire `0.1.0` face à un `CFBundleVersion` de `1` ferait lire au
+comparateur `[0,1,0] < [1]`, donc « déjà à jour ». `release.sh` lit donc la
+valeur directement dans le bundle compilé.
+
+**Contrainte d'ordonnancement.** L'appcast et la release GitHub doivent être
+publiés ensemble. Le flux seul pointe Sparkle vers un DMG inexistant ; la
+release seule reste invisible pour l'updater.
+
 ## Comportement de l'interface
 
 Les allers-retours vers le cloud prennent plusieurs secondes. Les commandes

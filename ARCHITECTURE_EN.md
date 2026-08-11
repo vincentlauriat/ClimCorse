@@ -102,6 +102,35 @@ but a separate `fanAutoMode` field acting as a bitmask across *both* axes. So
 setting one axis requires knowing the other's current state — the client takes
 it from the last known device state rather than issuing an extra read.
 
+## Distribution and updates
+
+The app is distributed as a Developer ID–signed, notarised DMG and updates
+itself through Sparkle 2.
+
+**No sandbox.** Sparkle installs updates through XPC services. Inside a sandbox
+that requires bundling `Downloader.xpc` / `Installer.xpc` and declaring
+`temporary-exception.mach-lookup.global-name` entitlements; without them an
+update downloads and then silently fails to install. Since distribution is
+Developer ID rather than App Store, the sandbox buys nothing here. This matches
+StarlinkInfos and ZendureMonitor.
+
+**Signing key.** Updates are EdDSA-signed with a private key held in the login
+keychain under the account `ClimCorse`; the public half is baked into the app as
+`SUPublicEDKey`. The account name is not derivable from anything in the repo, so
+it is recorded in `MEMORY.md` — `release.sh` depends on it. Regenerating the key
+would make every installed copy reject all future updates.
+
+**Version comparison.** Sparkle compares `<sparkle:version>` against the running
+app's `CFBundleVersion` — a monotonically increasing integer — not against the
+marketing version. Writing `0.1.0` there while the installed app reports
+`CFBundleVersion` `1` would make the comparator read `[0,1,0] < [1]` and
+conclude "already up to date". `release.sh` therefore reads the value straight
+out of the built bundle.
+
+**Ordering constraint.** The appcast and the GitHub release must land together.
+The feed alone points Sparkle at a DMG that does not exist; the release alone is
+invisible to the updater.
+
 ## UI behaviour
 
 Cloud round-trips take seconds. Commands apply to the local model immediately
