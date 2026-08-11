@@ -20,8 +20,9 @@ protocol, reconstructed from the official Android app (`com.panasonic.ACCsmart`)
 | Main window with unit sidebar and detail view | ✅ |
 | Menu bar panel for quick changes | ✅ |
 | Falls back to the server cache when a unit is unreachable | ✅ |
+| Automatic updates via Sparkle | ✅ |
+| Signed and notarised DMG | ✅ |
 | Energy consumption history | ⏳ |
-| Signed and notarised DMG | ⏳ |
 
 ## Design notes
 
@@ -58,9 +59,9 @@ the Comfort Cloud app version number in Settings.
 
 - [x] Authentication, device listing, full control surface
 - [x] Main window and menu bar panel
+- [x] Sparkle auto-update and notarised DMG
 - [ ] Validation against real hardware
 - [ ] Energy consumption history
-- [ ] Sparkle auto-update and notarised release
 
 ## License
 
