@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Pas de bac à sable, comme StarlinkInfos et ZendureMonitor.
+	     L'auto-update Sparkle installe via des services XPC : sous bac à sable
+	     il faudrait embarquer Downloader.xpc / Installer.xpc et déclarer les
+	     exceptions mach-lookup correspondantes, faute de quoi la mise à jour se
+	     télécharge puis échoue à s'installer, sans message. La distribution se
+	     faisant en Developer ID et non par l'App Store, le bac à sable
+	     n'apporte rien ici. -->
+	<key>com.apple.security.app-sandbox</key>
+	<false/>
+</dict>
+</plist>

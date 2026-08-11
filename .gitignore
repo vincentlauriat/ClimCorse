@@ -1,0 +1,26 @@
+# Documents de travail internes
+COMMANDS.md
+MEMORY.md
+CHANGES.md
+TODOS.md
+PLAN.md
+
+# Artefacts de release (motif sans slash : s'applique aussi dans release/)
+*.dmg
+*.zip
+release/
+
+# Xcode (le projet est généré par XcodeGen depuis project.yml)
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+DerivedData/
+build/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# Outils
+.omc/
+.sparkle-tools/
