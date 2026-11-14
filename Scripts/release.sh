@@ -35,6 +35,20 @@
 
 set -euo pipefail
 
+# Notary credentials: an App Store Connect API key (.p8) when NOTARY_KEY_ID, NOTARY_ISSUER_ID and
+# NOTARY_KEY_PATH are set or read from ~/.config/notarytool/api-key.env (it survives a keychain
+# reset); otherwise the keychain profile given as first argument. Usage: notary_run <profile> <args>
+notary_run() {
+  _np="$1"; shift
+  _nf="${NOTARY_ENV_FILE:-$HOME/.config/notarytool/api-key.env}"
+  if [ -z "${NOTARY_KEY_ID:-}" ] && [ -f "$_nf" ]; then . "$_nf"; fi
+  if [ -n "${NOTARY_KEY_ID:-}" ]; then
+    xcrun notarytool "$@" --key "${NOTARY_KEY_PATH/#\~/$HOME}" --key-id "$NOTARY_KEY_ID" --issuer "${NOTARY_ISSUER_ID:-}"
+  else
+    xcrun notarytool "$@" --keychain-profile "$_np"
+  fi
+}
+
 VERSION="${1:?Usage: ./Scripts/release.sh <version>  (ex. ./Scripts/release.sh 0.1.0)}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -176,8 +190,7 @@ rm -rf "$STAGING_DIR"
 # 6. Notarisation, puis agrafage du ticket pour que l'app se lance aussi sur
 # une machine hors ligne.
 echo "→ Envoi de $DMG au service de notarisation Apple (2 à 5 min)"
-xcrun notarytool submit "$DMG" \
-  --keychain-profile "$NOTARY_PROFILE" \
+notary_run "$NOTARY_PROFILE" submit "$DMG" \
   --wait
 
 echo "→ Agrafage du ticket de notarisation"
